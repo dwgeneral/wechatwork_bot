@@ -4,11 +4,15 @@ Bundler.require
 
 configure { set :server, :puma }
 
-CORP_ID = "wwcbba347bf458d3a8" # 企业ID
-APP_ID= "1000005" # 应用ID
-APP_SECRET = "pO5HHPGhnUxX_XMUtIfcqmhS_wYdOHy9tvUwVqiGZNE"
+API_ENDPOINT = "https://qyapi.weixin.qq.com/cgi-bin".freeze
 
-WX_URL = "https://qyapi.weixin.qq.com/cgi-bin"
+# 企业ID
+CORP_ID = "wwcbba347bf458d3a8".freeze
+# 小磁土应用ID
+AGENT_ID= "1000005".freeze
+# 每个应用有独立的secret，所以每个应用的access_token应该分开来获取
+AGENT_SECRET = "pO5HHPGhnUxX_XMUtIfcqmhS_wYdOHy9tvUwVqiGZNE".freeze
+
 
 namespace '/api/v1' do
   namespace '/wx' do
@@ -17,33 +21,26 @@ namespace '/api/v1' do
       content_type :json
     end
 
-    #post '/merge_requests' do
-
-    #  response = RestClient.get(MR_URL, {params: gitlab_params, "Private-Token": "dtfsWKbkPnkQony95hc5" })
-    #  result = JSON.parse(response.body)
-
-    #  bearychat_message(result)
-    #end
-    #
     get '/get_access_token' do
-
+      return cache if cache
+      response = RestClient.get(access_token_url)
+      result = JSON.parse(response.body)
+      return result if result["errcode"] != 0
+      Cache.set(cache_key, result["access_token"], result["expires_in"])
+      result["access_token"]
     end
 
   end
 end
 
 def access_token_url
-  WX_URL + "/gettoken?corpid=#{COPR_ID}&corpsecret=#{COPR_SECRET}"
+  API_ENDPOINT + "/gettoken?corpid=#{CORP_ID}&corpsecret=#{AGENT_SECRET}"
 end
 
-def build_message
-  {
-    "touser" : "abelzhu|ZhuShengben",
-    "msgtype" : "text",
-    "agentid" : COPR_ID,
-    "text" : {
-      "content" : "我就试一下"
-    },
-    "safe":0
-  }
+def cache_key
+  "access_token_#{AGENT_ID}"
+end
+
+def cache
+  Cache.get(cache_key)
 end

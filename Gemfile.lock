@@ -17,6 +17,7 @@ GEM
     rack (2.0.6)
     rack-protection (2.0.5)
       rack
+    redis (4.1.0)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
@@ -46,9 +47,10 @@ PLATFORMS
 DEPENDENCIES
   json
   puma
+  redis
   rest-client
   sinatra
   sinatra-namespace
 
 BUNDLED WITH
-   1.15.4
+   1.17.2
