@@ -2,7 +2,6 @@ require 'yaml'
 require 'redis'
 
 module Cache
-
   class << self
     attr_accessor :redis
 

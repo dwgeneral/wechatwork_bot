@@ -1,46 +1,49 @@
-# Require the bundler gem and then call Bundler.require to load in all gems listed in Gemfile.
-require 'bundler'
-Bundler.require
-
-configure { set :server, :puma }
-
-API_ENDPOINT = "https://qyapi.weixin.qq.com/cgi-bin".freeze
-
-# 企业ID
-CORP_ID = "wwcbba347bf458d3a8".freeze
-# 小磁土应用ID
-AGENT_ID= "1000005".freeze
-# 每个应用有独立的secret，所以每个应用的access_token应该分开来获取
-AGENT_SECRET = "pO5HHPGhnUxX_XMUtIfcqmhS_wYdOHy9tvUwVqiGZNE".freeze
-
+require './base'
 
 namespace '/api/v1' do
   namespace '/wx' do
-
     before do
       content_type :json
+      @access_token = Token.get_access_token
     end
 
     get '/get_access_token' do
-      return cache if cache
-      response = RestClient.get(access_token_url)
-      result = JSON.parse(response.body)
-      return result if result["errcode"] != 0
-      Cache.set(cache_key, result["access_token"], result["expires_in"])
-      result["access_token"]
+      @access_token
     end
 
-  end
-end
+    # 创建群聊会话
+    # params do
+    #   :name,
+    #   :owner, optional
+    #   :userlist,
+    #   :chatid, optional, values: [0-9a-zA-Z], max: 32char 建议自己指定，因为没打算存
+    # end
+    post '/appchat/create' do
+      @params = JSON.parse(request.body.read)
+      response = RestClient.post(create_appchat_url, @params)
+    end
 
-def access_token_url
-  API_ENDPOINT + "/gettoken?corpid=#{CORP_ID}&corpsecret=#{AGENT_SECRET}"
-end
+    # 发送消息到群聊
+    # params do
+    #   :chatid
+    #   :msgtype, values: ['text', 'image', 'voice', 'video', 'file', 'textcard', 'news', 'mpnews', 'markdown']
+    #   :text
+    #     :content, max: 2048char
+    #   :safe, Boolean, default: false 保密消息
+    #   refer to: https://work.weixin.qq.com/api/doc#90000/90135/90248
+    post '/appchat/send' do
+      RestClient.post(send_appchat_message_url, @params)
+    end
 
-def cache_key
-  "access_token_#{AGENT_ID}"
-end
+    # 获取标签成员List
+    get '/tag/get' do
+      response = RestClient.get(get_tag_members_url)
+      userlist = JSON.parse(response.body)
+    end
 
-def cache
-  Cache.get(cache_key)
-end
+    # 发送【磁场功能上线通知】
+    post '/magnet/send_deploy_message' do
+    end
+
+  end # namesapce /wx
+end # namespace /api/v1
