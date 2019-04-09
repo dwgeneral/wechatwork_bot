@@ -11,8 +11,7 @@ module Token
     end
 
     def get_access_token
-      @access_token ||= Cache.get(cache_key)
-      refresh_access_token unless @access_token
+      Cache.get(cache_key) || refresh_access_token
     end
 
     def refresh_access_token
