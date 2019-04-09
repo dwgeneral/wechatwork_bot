@@ -4,11 +4,10 @@ namespace '/api/v1' do
   namespace '/wx' do
     before do
       content_type :json
-      @access_token = Token.get_access_token
     end
 
     get '/get_access_token' do
-      @access_token
+      access_token
     end
 
     # 创建群聊会话
