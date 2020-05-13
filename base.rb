@@ -7,9 +7,9 @@ configure { set :server, :puma }
 API_ENDPOINT = "https://qyapi.weixin.qq.com/cgi-bin".freeze
 
 # 企业ID
-CORP_ID = "wwcbba347bf458d3a8".freeze
-# 小磁土应用ID
-AGENT_ID= "1000005".freeze
+CORP_ID = "your CORP ID".freeze
+# xxx应用ID
+AGENT_ID= "your Agent ID".freeze
 # 每个应用有独立的secret，所以每个应用的access_token应该分开来获取
-AGENT_SECRET = "pO5HHPGhnUxX_XMUtIfcqmhS_wYdOHy9tvUwVqiGZNE".freeze
+AGENT_SECRET = "your Agent secret".freeze
 
